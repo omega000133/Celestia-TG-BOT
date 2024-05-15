@@ -49,7 +49,7 @@ Edit config/settings.py with your specific details:
    ```bash
     main.py
    
-Commands
+## Commands
 Here are the commands you can use with the Celestia-TG-BOT:
 
 -  ```/start``` - Start interacting with the bot.
@@ -57,7 +57,7 @@ Here are the commands you can use with the Celestia-TG-BOT:
 - ```/monitor``` - Enable monitoring of the node.
 - ```/stop``` - Stop the bot.
 
-Configuration
+## Configuration
 The configuration settings for the bot are located in config/settings.py:
 
 - ```TOKEN```: The bot's token from Telegram.
