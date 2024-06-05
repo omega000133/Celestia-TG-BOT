@@ -1,11 +1,11 @@
 from telegram.ext import CommandHandler
-from commands.disk_management import diskalert_os, diskalert_py
-from commands.node_management import node_command
-from commands.missing_blocks import get_validator_address
-from commands.get_apr import get_apr
-from commands.help import help
+from telegram_bot.commands.disk_management import diskalert_os, diskalert_py
+from telegram_bot.commands.node_management import node_command
+from telegram_bot.commands.missing_blocks import get_validator_address
+from telegram_bot.commands.get_apr import get_apr
+from telegram_bot.commands.help import help
 
-# from commands.alerts import start_alerts, done
+from telegram_bot.commands.alerts import start_alerts
 
 
 def setup_handlers(application):
@@ -17,5 +17,5 @@ def setup_handlers(application):
     application.add_handler(
         CommandHandler("get_validator_address", get_validator_address)
     )
-    # application.add_handler(CommandHandler("start_alerts", start_alerts))
+    application.add_handler(CommandHandler("start_alerts", start_alerts))
     # application.add_handler(CommandHandler("done", done))
