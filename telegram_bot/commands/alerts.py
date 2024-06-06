@@ -1,12 +1,10 @@
 from telegram import Update
 from telegram.ext import CallbackContext
+from telegram_bot.utils.message import send_message_to_telegram
 
 
 async def start_alerts(update: Update, context: CallbackContext):
     try:
-        print("start alerts")
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id, text="start alert"
-        )
+        await send_message_to_telegram(update, context, "start alert")
     except Exception as e:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"{e}")
+        await send_message_to_telegram(update, context, f"{e}")

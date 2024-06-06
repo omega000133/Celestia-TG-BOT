@@ -1,17 +1,21 @@
 from telegram import Update
 from telegram.ext import CallbackContext
-from config.settings import BASE_URL_API, CHAT_ID, TOKEN
+from telegram_bot.config.settings import BASE_URL_API, CHAT_ID, TOKEN
+from telegram_bot.utils.message import send_message_to_telegram
+from telegram_bot.utils.httpxapi import cosmos_api_get
+
 import random
-import requests
 
 
 async def node_command(update: Update, context: CallbackContext):
     args = context.args
     if not args:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="Por favor, proporciona un argumento válido después de /node.",
+        await send_message_to_telegram(
+            update,
+            context,
+            "Por favor, proporciona un argumento válido después de /node.",
         )
+
         return
 
     if args[0].lower() == "reward":
@@ -24,9 +28,7 @@ async def node_command(update: Update, context: CallbackContext):
         # Seleccionar una respuesta aleatoria de la lista
         respuesta_aleatoria = random.choice(respuestas)
         # Enviar la respuesta aleatoria como mensaje
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id, text=respuesta_aleatoria
-        )
+        await send_message_to_telegram(update, context, respuesta_aleatoria)
 
     if args[0].lower() == "wallet":
         node_wallet(update, context, billetera=args[1].lower())
@@ -38,32 +40,29 @@ async def node_reward(update: Update, context: CallbackContext):
     full_url = BASE_URL_API + endpoint
 
     try:
-        response = requests.get(full_url)
-        response.raise_for_status()  # Verifica que la solicitud fue exitosa
+        data = cosmos_api_get(full_url)
+        if data is not None:
 
-        response_data = response.json()
-        commission_data = response_data.get("commission", {}).get("commission", [])
+            commission_data = data.get("commission", {}).get("commission", [])
 
-        if commission_data:  # Verifica si la lista no está vacía
-            # Convertir el valor de 'amount' a float
-            raw_amount = commission_data[0].get("amount", "0")
-            amount = (
-                float(raw_amount) / 1_000_000
-            )  # Convierte de utia a TIA considerando 6 dígitos decimales
-            amount = "{:.6f}".format(amount)
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=f"Comisiones por reclamar: {amount} TIA",
-            )
+            if commission_data:  # Verifica si la lista no está vacía
+                # Convertir el valor de 'amount' a float
+                raw_amount = commission_data[0].get("amount", "0")
+                amount = (
+                    float(raw_amount) / 1_000_000
+                )  # Convierte de utia a TIA considerando 6 dígitos decimales
+                amount = "{:.6f}".format(amount)
+                await send_message_to_telegram(
+                    update, context, f"Comisiones por reclamar: {amount} TIA"
+                )
+            else:
+                await send_message_to_telegram(update, context, "No existen comisiones")
         else:
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id, text="No existen comisiones"
-            )
+            await send_message_to_telegram(update, context, "No existen comisiones")
 
     except Exception as e:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=f"Error al obtener las comisiones: {e}",
+        await send_message_to_telegram(
+            update, context, f"Error al obtener las comisiones: {e}"
         )
 
 
@@ -83,11 +82,8 @@ async def node_wallet(update: Update, context: CallbackContext, billetera, token
     ####### libre ####
     try:
         print("entro en libre")
-        response = requests.get(full_url_libre)
-        response.raise_for_status()  # Verifica que la solicitud fue exitosa
-
-        response_data = response.json()
-        amount_data = response_data.get("balances", {})
+        data = cosmos_api_get(full_url_libre)
+        amount_data = data.get("balances", {})
         print(amount_data)
 
         for _amount_data in amount_data:
@@ -95,9 +91,8 @@ async def node_wallet(update: Update, context: CallbackContext, billetera, token
                 dinerotia = _amount_data["amount"]
                 break
             else:
-                await context.bot.send_message(
-                    chat_id=update.effective_chat.id,
-                    text=f"verifica si el token existe",
+                await send_message_to_telegram(
+                    update, context, f"verifica si el token existe"
                 )
 
         if dinerotia:  # Verifica si la lista no está vacía
@@ -109,10 +104,10 @@ async def node_wallet(update: Update, context: CallbackContext, billetera, token
             amount_libre = "{:.6f}".format(amount)
             # await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Tienes {amount_libre} Tias en tu wallet {billetera}")
         else:
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text="No existe valores o revisar manualmente",
+            await send_message_to_telegram(
+                update, context, "No existe valores o revisar manualmente"
             )
+
     except Exception as e:
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
@@ -122,11 +117,9 @@ async def node_wallet(update: Update, context: CallbackContext, billetera, token
     ###### staking ####
     try:
         print("entro en staking")
-        response = requests.get(full_url_staking)
-        response.raise_for_status()  # Asegura que la solicitud fue exitosa.
+        data = cosmos_api_get(full_url_staking)
 
-        response_data = response.json()
-        delegation_responses = response_data.get("delegation_responses", [])
+        delegation_responses = data.get("delegation_responses", [])
         print(delegation_responses)
 
         if not delegation_responses:
@@ -138,9 +131,8 @@ async def node_wallet(update: Update, context: CallbackContext, billetera, token
         if balance_data.get("denom") == token:
             dinerotia = balance_data.get("amount", "0")
         else:
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text="El token especificado no existe en tu staking.",
+            await send_message_to_telegram(
+                update, context, "El token especificado no existe en tu staking."
             )
 
         if dinerotia != "0":  # Verifica si se encontró un valor.
@@ -150,24 +142,21 @@ async def node_wallet(update: Update, context: CallbackContext, billetera, token
             amount_staking = "{:.6f}".format(amount_staking)
             # await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Tienes {amount_staking_formatted} TIA en staking en tu wallet {billetera}.")
         else:
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text="No existen valores en staking o revisar manualmente.",
+            await send_message_to_telegram(
+                update, context, "No existen valores en staking o revisar manualmente."
             )
+
     except Exception as e:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=f"Error al obtener el valor de staking: {e}",
+        await send_message_to_telegram(
+            update, context, f"Error al obtener el valor de staking: {e}"
         )
 
     ###### unstaking ####
     try:
         print("Entro en unstake")
-        response = requests.get(full_url_unstaking)
-        response.raise_for_status()  # Asegura que la solicitud fue exitosa.
+        data = cosmos_api_get(full_url_unstaking)
 
-        response_data = response.json()
-        unbonding_responses = response_data.get("unbonding_responses", [])
+        unbonding_responses = data.get("unbonding_responses", [])
         print(unbonding_responses)
 
         # Inicializa amount_unstaking por defecto
@@ -187,9 +176,8 @@ async def node_wallet(update: Update, context: CallbackContext, billetera, token
                 amount_unstaking = "{:.6f}".format(amount_unstaking)
                 print(amount_unstaking)
     except Exception as e:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=f"Error al obtener el valor de unstaking: {e}",
+        await send_message_to_telegram(
+            update, context, f"Error al obtener el valor de unstaking: {e}"
         )
 
     ####### final #####
@@ -217,4 +205,4 @@ async def node_wallet(update: Update, context: CallbackContext, billetera, token
         mensaje_final += f"{descripcion:<10} {valor:,.2f} TIA\n"
     mensaje_final += "```"
 
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=mensaje_final)
+    await send_message_to_telegram(update, context, mensaje_final)

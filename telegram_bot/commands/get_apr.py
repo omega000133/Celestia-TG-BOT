@@ -1,8 +1,9 @@
 from telegram import Update
 from telegram.ext import CallbackContext
-from config.settings import BASE_URL_API, DEBUG
-from utils.httpxapi import cosmos_api_get, cosmos_api_post, run_concurrently
-from utils.decorators import timer
+from telegram_bot.config.settings import BASE_URL_API, DEBUG
+from telegram_bot.utils.httpxapi import cosmos_api_get
+from telegram_bot.utils.decorators import timer
+from telegram_bot.utils.message import send_message_to_telegram
 
 # def obtener_annual_provisions():
 #     """Obtener las provisiones anuales de la red."""
@@ -75,11 +76,15 @@ def calcular_nominal_apr(annual_provisions, bonded_tokens, community_tax):
 async def get_apr(update: Update, context: CallbackContext):
     try:
 
-        annual_provisions, bonded_tokens, community_tax = run_concurrently(
-            obtener_annual_provisions(),
-            obtener_bonded_tokens(),
-            obtener_community_tax(),
-        )
+        # annual_provisions, bonded_tokens, community_tax = run_concurrently(
+        #     await obtener_annual_provisions(),
+        #     await obtener_bonded_tokens(),
+        #     await obtener_community_tax(),
+        # )
+
+        annual_provisions = await obtener_annual_provisions()
+        bonded_tokens = await obtener_bonded_tokens()
+        community_tax = await obtener_community_tax()
 
         if (
             annual_provisions is not None
@@ -90,16 +95,16 @@ async def get_apr(update: Update, context: CallbackContext):
                 annual_provisions, bonded_tokens, community_tax
             )
             print(f"Nominal APR: {nominal_apr:.2f}%")
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text=f"Nominal APR: {nominal_apr:.2f}%",
+            await send_message_to_telegram(
+                update, context, f"Nominal APR: {nominal_apr:.2f}%"
             )
+
         else:
-            await context.bot.send_message(
-                chat_id=update.effective_chat.id,
-                text="No se pudo calcular el APR debido a un error al obtener los datos.",
+            await send_message_to_telegram(
+                update,
+                context,
+                "No se pudo calcular el APR debido a un error al obtener los datos.",
             )
+
     except Exception as e:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id, text=f"Error al obtener el APR: {e}"
-        )
+        await send_message_to_telegram(update, context, f"Error al obtener el APR: {e}")

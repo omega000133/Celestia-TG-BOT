@@ -1,10 +1,12 @@
-import requests
 import base64
 import hashlib
 import bech32
 from config.settings import BASE_URL_API, VALOPER_ADDRESS
 from telegram import Update
 from telegram.ext import CallbackContext
+
+from telegram_bot.utils.httpxapi import cosmos_api_get
+from telegram_bot.utils.message import send_message_to_telegram
 
 
 def bech32_to_hex(address: str) -> str:
@@ -17,16 +19,19 @@ def bech32_to_hex(address: str) -> str:
     return hex_address.upper()
 
 
-def get_validator_info(api_url: str, valoper_address: str) -> dict:
+async def get_validator_info(api_url: str, valoper_address: str) -> dict:
     """
     Obtiene información sobre un validador utilizando la API REST de Cosmos SDK.
     """
-    endpoint = f"/cosmos/staking/v1beta1/validators/{valoper_address}"
     try:
-        response = requests.get(api_url + endpoint)
-        response.raise_for_status()
-        return response.json()  # Retorna la respuesta como un diccionario de Python
-    except requests.RequestException as e:
+        url = f"{api_url}/cosmos/staking/v1beta1/validators/{valoper_address}"
+
+        data = await cosmos_api_get(url)
+        if data is not None:
+            return data
+        else:
+            return None
+    except Exception as e:
         print(f"Error al obtener información del validador: {e}")
         return {}
 
@@ -57,22 +62,22 @@ def pubkey_to_consensus_address(pubkey_base64: str) -> str:
     return consensus_address
 
 
-def get_missed_block(api_url: str, consensus_address: str) -> str:
+async def get_missed_block(api_url: str, consensus_address: str) -> str:
     """
     Get missed block using consensus address
     """
-    endpoint = f"/cosmos/slashing/v1beta1/signing_infos/{consensus_address}"
     try:
-        response = requests.get(api_url + endpoint)
-        response.raise_for_status()
-        val_signing_info = response.json()
-        return val_signing_info["val_signing_info"]["missed_blocks_counter"]
-    except requests.RequestException as e:
-        print(f"Error al obtener información del validador: {e}")
+        url = f"{api_url}/cosmos/slashing/v1beta1/signing_infos/{consensus_address}"
+        data = await cosmos_api_get(url)
+        if data is not None:
+            return data["val_signing_info"]["missed_blocks_counter"]
+        else:
+            return None
+    except Exception as e:
         return "validator signing infomation couldn't be found"
 
 
-def process_validator_info(validator_info: dict) -> str:
+async def process_validator_info(validator_info: dict) -> str:
     """
     Procesa la información del validador, extrayendo y convirtiendo la clave pública de consenso.
     """
@@ -80,16 +85,17 @@ def process_validator_info(validator_info: dict) -> str:
         consensus_pubkey = validator_info["validator"]["consensus_pubkey"]["key"]
         validator_address_hex = pubkey_to_validator_address(consensus_pubkey)
         consensus_address = pubkey_to_consensus_address(consensus_pubkey)
-        missed_block = get_missed_block(BASE_URL_API, consensus_address)
-        return f"Validator Address (Hex): {validator_address_hex}\n Missed Block count: {missed_block}"
+        missed_block = await get_missed_block(BASE_URL_API, consensus_address)
+        return f"Validator Address (Hex): {validator_address_hex}\nMissed Block count: {missed_block}"
     else:
         return f"No se pudo encontrar la información del validador."
 
 
 async def get_validator_address(update: Update, context: CallbackContext):
-    validator_info = get_validator_info(BASE_URL_API, VALOPER_ADDRESS)
+    validator_info = await get_validator_info(BASE_URL_API, VALOPER_ADDRESS)
     print(validator_info)
-    await update.message.reply_text(process_validator_info(validator_info))
+    message = await process_validator_info(validator_info)
+    await send_message_to_telegram(update, context, message)
 
 
 if __name__ == "__main__":

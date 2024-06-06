@@ -12,9 +12,10 @@ if parent_dir not in sys.path:
 
 from telegram import Update
 from telegram.ext import CallbackContext
-from config.settings import MIN_FREE_SPACE, PORCENTAJE
-from utils.decorators import timer
-from utils.subprocess_utils import run_command
+from telegram_bot.config.settings import MIN_FREE_SPACE, PORCENTAJE
+from telegram_bot.utils.decorators import timer
+from telegram_bot.utils.subprocess_utils import run_command
+from telegram_bot.utils.message import send_message_to_telegram
 
 
 async def diskalert_os(update: Update, context: CallbackContext):
@@ -37,23 +38,26 @@ async def diskalert_os(update: Update, context: CallbackContext):
         espacio_libre_gb = int(espacio_libre)
         print(f"Espacio libre en GB: {espacio_libre_gb}")
     except subprocess.CalledProcessError as e:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text="Error al verificar el espacio en disco.",
+        await send_message_to_telegram(
+            update, context, "Error al verificar el espacio en disco."
         )
+
     except Exception as e:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f"{e}")
+        await send_message_to_telegram(update, context, f"{e}")
 
     # Verificar si el espacio libre es menor que el mínimo requerido y enviar alerta
     if int(espacio_libre) < MIN_FREE_SPACE:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=f"Alerta de espacio en disco bajo: Solo quedan {espacio_libre_gb} GB libres en el servidor.",
+        await send_message_to_telegram(
+            update,
+            context,
+            f"Alerta de espacio en disco bajo: Solo quedan {espacio_libre_gb} GB libres en el servidor.",
         )
+
     else:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=f"Espacio en disco suficiente: {espacio_libre_gb} GB libres.",
+        await send_message_to_telegram(
+            update,
+            context,
+            f"Espacio en disco suficiente: {espacio_libre_gb} GB libres.",
         )
 
 
@@ -101,9 +105,8 @@ async def diskalert_py(
 
     # Comprobar si se ejecuta desde un bot de Telegram o directamente
     if update is not None and context is not None:
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id, text=alert_message
-        )
+        await send_message_to_telegram(update, context, alert_message)
+
     else:
         print(alert_message)
         return free_gb, free_percent
