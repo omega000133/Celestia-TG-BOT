@@ -41,6 +41,37 @@ def pubkey_to_validator_address(pubkey_base64: str) -> str:
     return address_bytes.hex().upper()
 
 
+def pubkey_to_consensus_address(pubkey_base64: str) -> str:
+    """
+    get consensus address from publickey
+    """
+    prefix = "celestiavalcons"
+    pubkey_bytes = base64.b64decode(pubkey_base64)
+    sha256_hash = hashlib.sha256(pubkey_bytes).digest()
+    address_bytes = sha256_hash[:20]
+
+    consensus_address = bech32.bech32_encode(
+        prefix, bech32.convertbits(address_bytes, 8, 5)
+    )
+
+    return consensus_address
+
+
+def get_missed_block(api_url: str, consensus_address: str) -> str:
+    """
+    Get missed block using consensus address
+    """
+    endpoint = f"/cosmos/slashing/v1beta1/signing_infos/{consensus_address}"
+    try:
+        response = requests.get(api_url + endpoint)
+        response.raise_for_status()
+        val_signing_info = response.json()
+        return val_signing_info["val_signing_info"]["missed_blocks_counter"]
+    except requests.RequestException as e:
+        print(f"Error al obtener información del validador: {e}")
+        return "validator signing infomation couldn't be found"
+
+
 def process_validator_info(validator_info: dict) -> str:
     """
     Procesa la información del validador, extrayendo y convirtiendo la clave pública de consenso.
@@ -48,7 +79,9 @@ def process_validator_info(validator_info: dict) -> str:
     if "validator" in validator_info:
         consensus_pubkey = validator_info["validator"]["consensus_pubkey"]["key"]
         validator_address_hex = pubkey_to_validator_address(consensus_pubkey)
-        return f"Validator Address (Hex): {validator_address_hex}"
+        consensus_address = pubkey_to_consensus_address(consensus_pubkey)
+        missed_block = get_missed_block(BASE_URL_API, consensus_address)
+        return f"Validator Address (Hex): {validator_address_hex}\n Missed Block count: {missed_block}"
     else:
         return f"No se pudo encontrar la información del validador."
 
@@ -56,9 +89,7 @@ def process_validator_info(validator_info: dict) -> str:
 async def get_validator_address(update: Update, context: CallbackContext):
     validator_info = get_validator_info(BASE_URL_API, VALOPER_ADDRESS)
     print(validator_info)
-    await context.bot.send_message(
-        chat_id=update.effective_chat.id, text=process_validator_info(validator_info)
-    )
+    await update.message.reply_text(process_validator_info(validator_info))
 
 
 if __name__ == "__main__":
