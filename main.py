@@ -1,8 +1,6 @@
-# main.py
-from telegram.ext import ApplicationBuilder, ContextTypes, CommandHandler
-from telegram_bot.bot.handlers import setup_handlers
-from telegram_bot.config.settings import TOKEN, DEBUG
+from telegram_bot.config.settings import DEBUG
 from telegram_bot.utils.welcome_message import welcome_message
+from bigbang.main import run
 import logging
 
 if DEBUG is True:
@@ -11,14 +9,11 @@ if DEBUG is True:
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
         level=logging.DEBUG,
     )
-    logger = logging.getLogger(__name__)
+#     logger = logging.getLogger(__name__)
 
 
 def main():
-    application = ApplicationBuilder().token(TOKEN).concurrent_updates(True).build()
-    setup_handlers(application)
-
-    application.run_polling()
+    run()
 
 
 if __name__ == "__main__":
