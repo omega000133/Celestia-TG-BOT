@@ -1,5 +1,6 @@
+import asyncio
 from telegram_bot.main import run_bot
 
 
 def run():
-    run_bot()
+    asyncio.create_task(run_bot())

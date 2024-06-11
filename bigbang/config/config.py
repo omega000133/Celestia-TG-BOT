@@ -1,6 +1,6 @@
 import threading
 import contextlib
-import yaml
+import asyncio
 
 import os
 from dotenv import load_dotenv
@@ -30,9 +30,9 @@ class ChainConfig:
 class Config:
     def __init__(self):
         self.alertChan = []
-        self.updateChan = []
-        self.logChan = []
-        self.statsChan = []
+        self.updateChan = asyncio.Queue()
+        self.logChan = asyncio.Queue()
+        self.statsChan = asyncio.Queue()
         self.ctx = contextlib.ExitStack()
         self.cancel = threading.Event()
         self.alarms = AlarmCache()

@@ -11,11 +11,6 @@ if DEBUG is True:
     )
 #     logger = logging.getLogger(__name__)
 
-
-def main():
-    run()
-
-
 if __name__ == "__main__":
     print(welcome_message())
-    main()
+    run()
