@@ -1,6 +1,6 @@
 from telegram_bot.config.settings import DEBUG
 from telegram_bot.utils.welcome_message import welcome_message
-from bigbang.main import run
+from telegram_bot.main import run_bot
 import logging
 
 if DEBUG is True:
@@ -13,4 +13,4 @@ if DEBUG is True:
 
 if __name__ == "__main__":
     print(welcome_message())
-    run()
+    run_bot()

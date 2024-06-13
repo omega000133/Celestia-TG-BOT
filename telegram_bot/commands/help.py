@@ -12,7 +12,8 @@ async def help(update: Update, context: CallbackContext):
         ("/diskalert_py", "Uso del disco usando built-in python package"),
         ("/get_apr", "Obtiene el APR de Celestia en tiempo real"),
         ("/get_validator_address", "Obtiene el hex validator address"),
-        ("/start_alerts", "start_alerts"),
+        ("/start_alerts", "start node monitoring"),
+        ("/stop_alerts", "stop node monitoring"),
         # Agrega más comandos según sea necesario
     ]
 
