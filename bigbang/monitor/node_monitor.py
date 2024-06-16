@@ -3,7 +3,7 @@ import threading
 import asyncio
 from telegram import Update
 from telegram.ext import CallbackContext
-from telegram_bot.utils.message import send_message_to_telegram
+from telegram_bot.utils.message import send_message_to_telegram, get_node_info_message
 from telegram_bot.config.settings import MISSED_BLOCK_NUMBER
 
 from bigbang.utils.api import get
@@ -51,8 +51,9 @@ def run_monitoring(update: Update, context: CallbackContext):
     # allow to run async in event loop
     asyncio.get_running_loop()
     if not constant.stop_threads:
+        print("/monitor alert start")
         asyncio.ensure_future(
-            send_message_to_telegram(update, context, "Monitoring is already running.")
+            get_node_info_message(update, context, "monitering is already started")
         )
         return
 
@@ -70,9 +71,7 @@ def run_monitoring(update: Update, context: CallbackContext):
     )
     comparison_thread.start()
 
-    asyncio.ensure_future(
-        send_message_to_telegram(update, context, "Started montoring...")
-    )
+    asyncio.ensure_future(get_node_info_message(update, context, "started montering"))
 
 
 def stop_monitoring(update: Update, context: CallbackContext):
