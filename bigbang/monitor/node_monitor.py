@@ -4,6 +4,8 @@ import asyncio
 from telegram import Update
 from telegram.ext import CallbackContext
 from telegram_bot.utils.message import send_message_to_telegram
+from telegram_bot.config.settings import MISSED_BLOCK_NUMBER
+
 from bigbang.utils.api import get
 from bigbang.utils import constant
 
@@ -31,14 +33,14 @@ def monitor_node(name, url, block_numbers):
 
 async def compare_blocks(block_numbers, update: Update, context: CallbackContext):
     while not constant.stop_threads:
-        latam_block = block_numbers.get("latam_node")
+        latam_block = block_numbers.get("basic_node")
         if latam_block is None:
             continue
 
         time.sleep(10)
         diff_block = max(block_numbers.values(), default=0) - latam_block
         print(block_numbers)
-        if diff_block > 10:
+        if diff_block > int(MISSED_BLOCK_NUMBER):
             # asyncio.get_running_loop()
             await send_message_to_telegram(
                 update, context, f"Just found {diff_block} blocks"

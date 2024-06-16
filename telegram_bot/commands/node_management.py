@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.ext import CallbackContext
-from telegram_bot.config.settings import BASE_URL_API, CHAT_ID, TOKEN
+from telegram_bot.config.settings import BASE_URL_API, VALOPER_ADDRESS
 from telegram_bot.utils.message import send_message_to_telegram
 from telegram_bot.utils.httpxapi import cosmos_api_get
 
@@ -35,7 +35,7 @@ async def node_command(update: Update, context: CallbackContext):
 
 
 async def node_reward(update: Update, context: CallbackContext):
-    validator_address = "celestiavaloper14v4ush42xewyeuuldf6jtdz0a7pxg5fwrlumwf"
+    validator_address = VALOPER_ADDRESS
     endpoint = f"/cosmos/distribution/v1beta1/validators/{validator_address}/commission"
     full_url = BASE_URL_API + endpoint
 
