@@ -1,7 +1,14 @@
-import subprocess
-import shutil
 import os
+import shutil
+import subprocess
 import sys
+
+from telegram import Update
+from telegram.ext import CallbackContext
+
+from telegram_bot.config.settings import MIN_FREE_SPACE, PORCENTAJE
+from telegram_bot.utils.decorators import timer
+from telegram_bot.utils.message import send_message_to_telegram
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -9,13 +16,6 @@ if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 # sys.path['C:/Users/User/Desktop/PythonETHnodesrpc/LatamNodeBot/']
 # sys.path[sys]
-
-from telegram import Update
-from telegram.ext import CallbackContext
-from telegram_bot.config.settings import MIN_FREE_SPACE, PORCENTAJE
-from telegram_bot.utils.decorators import timer
-from telegram_bot.utils.subprocess_utils import run_command
-from telegram_bot.utils.message import send_message_to_telegram
 
 
 async def diskalert_os(update: Update, context: CallbackContext):
@@ -39,14 +39,14 @@ async def diskalert_os(update: Update, context: CallbackContext):
         print(f"Espacio libre en GB: {espacio_libre_gb}")
     except subprocess.CalledProcessError as e:
         await send_message_to_telegram(
-            update, context, "Error al verificar el espacio en disco."
+            update, context, f"Error al verificar el espacio en disco.{e}"
         )
 
     except Exception as e:
         await send_message_to_telegram(update, context, f"{e}")
 
     # Verificar si el espacio libre es menor que el mínimo requerido y enviar alerta
-    if int(espacio_libre) < MIN_FREE_SPACE:
+    if int(espacio_libre) < int(MIN_FREE_SPACE):
         await send_message_to_telegram(
             update,
             context,
@@ -86,19 +86,18 @@ async def diskalert_py(
     total, used, free = shutil.disk_usage(path)
 
     # Convertir bytes a gigabytes
-    total_gb = total / (2**30)
     free_gb = free / (2**30)
     free_percent = (free / total) * 100
 
     # Preparar el mensaje de salida
     alert_message = ""
     if porcentaje is True:
-        if free_percent <= MIN_FREE_SPACE:
+        if free_percent <= int(MIN_FREE_SPACE):
             alert_message = "¡Alerta! Espacio en disco bajo."
         else:
             alert_message = f"Espacio en disco suficiente: {free_gb:.2f} GB libres, {free_percent:.2f}% disponible."
     else:
-        if free_gb <= MIN_FREE_SPACE:
+        if free_gb <= int(MIN_FREE_SPACE):
             alert_message = "¡Alerta! Espacio en disco bajo."
         else:
             alert_message = f"Espacio en disco suficiente: {free_gb:.2f} GB libres"

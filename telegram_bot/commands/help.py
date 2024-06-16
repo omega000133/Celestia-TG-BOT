@@ -5,6 +5,9 @@ from telegram.ext import CallbackContext
 async def help(update: Update, context: CallbackContext):
     comandos = [
         ("/help", "Muestra este mensaje de ayuda."),
+        ("/monitor alert start", "start node monitoring"),
+        ("/monitor alert stop", "stop node monitoring"),
+        ("/monitor status", "get monitering info"),
         ("/node reward", "Consulta Comisiones pendientes del Nodo."),
         ("/node wallet <celes1wallet>", "Consulta el balance total de una wallet."),
         ("/node manco?", "Te dira quien es el mas manco"),
@@ -12,9 +15,6 @@ async def help(update: Update, context: CallbackContext):
         ("/diskalert_py", "Uso del disco usando built-in python package"),
         ("/get_apr", "Obtiene el APR de Celestia en tiempo real"),
         ("/get_validator_address", "Obtiene el hex validator address"),
-        ("/start_alerts", "start node monitoring"),
-        ("/stop_alerts", "stop node monitoring"),
-        # Agrega más comandos según sea necesario
     ]
 
     # Construir el mensaje de ayuda

@@ -1,7 +1,8 @@
 from telegram import Update
 from telegram.ext import CallbackContext
-from telegram_bot.utils.message import send_message_to_telegram
+
 from bigbang.monitor.node_monitor import run_monitoring, stop_monitoring
+from telegram_bot.utils.message import get_node_info_message, send_message_to_telegram
 
 
 async def monitor_command(update: Update, context: CallbackContext):
@@ -11,6 +12,7 @@ async def monitor_command(update: Update, context: CallbackContext):
         commands = [
             ("/monitor alert start", "start monitoring"),
             ("/monitor alert stop", "stop  monitoring"),
+            ("/monitor status", "get monitoring info"),
         ]
 
         sub_message_list = [
@@ -34,6 +36,10 @@ async def monitor_command(update: Update, context: CallbackContext):
             return
         else:
             return
+
+    if args[0].lower() == "status":
+        await get_node_info_message(update, context, "Currenlty node info: \n")
+        return
 
 
 async def start_alerts(update: Update, context: CallbackContext):

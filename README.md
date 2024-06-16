@@ -14,7 +14,7 @@ Follow these steps to set up and run the Celestia-TG-BOT.
 
 ### Prerequisites
 
-- Python 3.6 or higher
+- Python 3.8 or higher
 - Virtual environment (recommended)
 
 ### Steps
@@ -22,7 +22,7 @@ Follow these steps to set up and run the Celestia-TG-BOT.
 1. **Clone the Repository:**
    ```bash
    git clone https://github.com/clock-workorange/Celestia-TG-BOT.git
-   cd Celestia-TG-BOT/LatamNodeBot
+   cd Celestia-TG-BOT
 
 2. **Set Up a Virtual Environment:**
    ```bash
@@ -32,38 +32,43 @@ Follow these steps to set up and run the Celestia-TG-BOT.
    ```bash
     pip install -r requirements.txt
 
-4. **Update Configuration:**
-Edit config/settings.py with your specific details:
+4. **Create Configuration File:**
+
+   ```bash
+    cp .env.example .env
+
+5. **Update Configuration:**
 
    ```bash
     TOKEN = "your_telegram_bot_token"
-    CHAT_ID = "your_chat_id"
     BASE_URL_API = "https://api-celestia-1.latamnodes.org"
-    BASE_URL_RPC = "https://rpc-celestia-1.latamnodes.org"
+    BASE_RPC_URL = "https://rpc-celestia-1.latamnodes.org"
+    MISSED_BLOCK_NUMBER = 5
+
     DEBUG = False
     PORCENTAJE = False
     MIN_FREE_SPACE = 11  # Minimum free space required in GB
     VALOPER_ADDRESS = "your_validator_address"
 
-5. **Run the Bot:**
+6. **Run the Bot:**
    ```bash
-    main.py
-   
+    python main.py
+
 ## Commands
 Here are the commands you can use with the Celestia-TG-BOT:
 
--  ```/start``` - Start interacting with the bot.
-- ```/status``` - Get the current status of the Celestia node.
-- ```/monitor``` - Enable monitoring of the node.
-- ```/stop``` - Stop the bot.
+- ```/monitor help``` - Monitoring help.
+- ```/monitor alert start``` - Enable monitoring of the node and Start interacting with the bot.
+- ```/monitor alert stop``` - Stop the bot.
+- ```/monitor status``` - Get the current status of the Celestia node.
 
 ## Configuration
 The configuration settings for the bot are located in config/settings.py:
 
 - ```TOKEN```: The bot's token from Telegram.
-- ```CHAT_ID```: The chat ID where the bot will operate.
 - ```BASE_URL_API```: The base URL for the API endpoint.
-- ```BASE_URL_RPC```: The base URL for the RPC endpoint.
+- ```BASE_RPC_URL```: The base RPC endpoint.
+- ```MISSED_BLOCK_NUMBER```: Number of consecutive missing blocks.
 - ```DEBUG```: Boolean to enable or disable debug mode.
 - ```PORCENTAJE```: Boolean for some percentage-based logic.
 - ```MIN_FREE_SPACE```: Minimum free space required (in GB).
@@ -72,9 +77,9 @@ The configuration settings for the bot are located in config/settings.py:
 Example Configuration
    ```bash
     TOKEN = "your_telegram_bot_token"
-    CHAT_ID = "your_chat_id"
     BASE_URL_API = "https://api-celestia-1.latamnodes.org"
-    BASE_URL_RPC = "https://rpc-celestia-1.latamnodes.org"
+    BASE_RPC_URL = "https://rpc-celestia-1.latamnodes.org"
+    MISSED_BLOCK_NUMBER = 5
     DEBUG = False
     PORCENTAJE = False
     MIN_FREE_SPACE = 11  # Minimum free space required in GB
