@@ -41,6 +41,7 @@ Follow these steps to set up and run the Celestia-TG-BOT.
 
    ```bash
     TOKEN = "your_telegram_bot_token"
+    CHAT_ID = "12345678"
     BASE_URL_API = "https://api-celestia-1.latamnodes.org"
     BASE_RPC_URL = "https://rpc-celestia-1.latamnodes.org"
     MISSED_BLOCK_NUMBER = 5
@@ -61,11 +62,13 @@ Here are the commands you can use with the Celestia-TG-BOT:
 - ```/monitor alert start``` - Enable monitoring of the node and Start interacting with the bot.
 - ```/monitor alert stop``` - Stop the bot.
 - ```/monitor status``` - Get the current status of the Celestia node.
+- ```/monitor set your_chat_id``` - Set group ID for the chat where messages will be sent.
 
 ## Configuration
 The configuration settings for the bot are located in config/settings.py:
 
 - ```TOKEN```: The bot's token from Telegram.
+- ```CHAT_ID```: The group ID for the chat where messages will be sent.
 - ```BASE_URL_API```: The base URL for the API endpoint.
 - ```BASE_RPC_URL```: The base RPC endpoint.
 - ```MISSED_BLOCK_NUMBER```: Number of consecutive missing blocks.
@@ -77,6 +80,7 @@ The configuration settings for the bot are located in config/settings.py:
 Example Configuration
    ```bash
     TOKEN = "your_telegram_bot_token"
+    CHAT_ID = "chat_id_to_send_message"
     BASE_URL_API = "https://api-celestia-1.latamnodes.org"
     BASE_RPC_URL = "https://rpc-celestia-1.latamnodes.org"
     MISSED_BLOCK_NUMBER = 5

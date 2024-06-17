@@ -17,6 +17,7 @@ async def monitor_command(update: Update, context: CallbackContext):
             ("/monitor alert start", "start monitoring"),
             ("/monitor alert stop", "stop  monitoring"),
             ("/monitor status", "get monitoring info"),
+            ("/monitor set your_chat_id", "get group id for the chat"),
         ]
 
         sub_message_list = [
