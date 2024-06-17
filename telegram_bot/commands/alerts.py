@@ -3,6 +3,10 @@ from telegram.ext import CallbackContext
 
 from bigbang.monitor.node_monitor import run_monitoring, stop_monitoring
 from telegram_bot.utils.message import get_node_info_message, send_message_to_telegram
+from dotenv import find_dotenv, load_dotenv, set_key
+
+dotenv_file = find_dotenv()
+load_dotenv(dotenv_file)
 
 
 async def monitor_command(update: Update, context: CallbackContext):
@@ -39,6 +43,10 @@ async def monitor_command(update: Update, context: CallbackContext):
 
     if args[0].lower() == "status":
         await get_node_info_message(update, context, "Currenlty node info: \n")
+        return
+
+    if args[0].lower() == "set" and len(args) > 1:
+        set_key(dotenv_file, "CHAT_ID", args[1])
         return
 
 

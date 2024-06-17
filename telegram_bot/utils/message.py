@@ -5,21 +5,26 @@ from telegram_bot.config.settings import (
     MISSED_BLOCK_NUMBER,
     VALOPER_ADDRESS,
     BASE_RPC_URL,
-    CHAT_ID,
 )
+
+from dotenv import find_dotenv, load_dotenv, get_key
+
+dotenv_file = find_dotenv()
+load_dotenv(dotenv_file)
 
 
 async def send_message_to_telegram(
     update: Update, context: CallbackContext, message: str
 ):
     try:
-        print(update.effective_chat.id)
-        if CHAT_ID == update.effective_chat.id:
+        if get_key(dotenv_file, "CHAT_ID") == update.effective_chat.id:
             await context.bot.send_message(
                 chat_id=update.effective_chat.id, text=message
             )
         else:
-            await context.bot.send_message(chat_id=CHAT_ID, text=message)
+            await context.bot.send_message(
+                chat_id=get_key(dotenv_file, "CHAT_ID"), text=message
+            )
 
     except Exception as e:
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"{e}")
