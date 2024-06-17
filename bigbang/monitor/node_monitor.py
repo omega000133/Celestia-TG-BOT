@@ -26,12 +26,15 @@ def get_block_number(url):
         return None
 
 
-def monitor_node(name, url, block_numbers):
+def monitor_node(name, url, block_numbers, update: Update, context: CallbackContext):
     while not constant.stop_threads:
         block_number = get_block_number(url)
 
         if block_number is not None:
             block_numbers[name] = block_number
+        else:
+            if name == "basic_node":
+                send_message_to_telegram(update, context, f"latam node is turning off")
         time.sleep(10)
 
 
@@ -64,7 +67,7 @@ def run_monitoring(update: Update, context: CallbackContext):
     constant.stop_threads = False
     for node_name, node_url in constant.node_list.items():
         thread = threading.Thread(
-            target=monitor_node, args=(node_name, node_url, constant.block_numbers)
+            target=monitor_node, args=(node_name, node_url, constant.block_numbers, update, context)
         )
         constant.threads.append(thread)
         thread.start()
