@@ -8,6 +8,10 @@ from telegram_bot.config.settings import MISSED_BLOCK_NUMBER
 
 from bigbang.utils.api import get
 from bigbang.utils import constant
+from dotenv import find_dotenv, load_dotenv, get_key
+
+dotenv_file = find_dotenv()
+load_dotenv(dotenv_file)
 
 
 def get_block_number(url):
@@ -40,7 +44,7 @@ async def compare_blocks(block_numbers, update: Update, context: CallbackContext
         time.sleep(10)
         diff_block = max(block_numbers.values(), default=0) - latam_block
         print(block_numbers)
-        if diff_block > int(MISSED_BLOCK_NUMBER):
+        if diff_block > int(get_key(dotenv_file, "MISSED_BLOCK_NUMBER")):
             # asyncio.get_running_loop()
             await send_message_to_telegram(
                 update, context, f"Just found {diff_block} blocks"

@@ -62,7 +62,8 @@ Here are the commands you can use with the Celestia-TG-BOT:
 - ```/monitor alert start``` - Enable monitoring of the node and Start interacting with the bot.
 - ```/monitor alert stop``` - Stop the bot.
 - ```/monitor status``` - Get the current status of the Celestia node.
-- ```/monitor set your_chat_id``` - Set group ID for the chat where messages will be sent.
+- ```/monitor set chat_id xxxxxxxx``` - Set group ID for the chat where messages will be sent.
+- ```/monitor set missed_block_number 5``` - Set block number for getting number of missed block.
 
 ## Configuration
 The configuration settings for the bot are located in config/settings.py:

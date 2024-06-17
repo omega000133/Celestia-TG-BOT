@@ -2,7 +2,6 @@ from telegram import Update
 from telegram.ext import CallbackContext
 from bigbang.utils.constant import node_list
 from telegram_bot.config.settings import (
-    MISSED_BLOCK_NUMBER,
     VALOPER_ADDRESS,
     BASE_RPC_URL,
 )
@@ -35,9 +34,10 @@ async def get_node_info_message(update: Update, context: CallbackContext, messag
     for node_info in node_list.values():
         if node_info != BASE_RPC_URL:
             node_list_str += f"\t{node_info}\n"
+    missed_block_number = get_key(dotenv_file, "MISSED_BLOCK_NUMBER")
     node_info = [
         ("Bot", f"{message}... \n"),
-        ("Config", f" {MISSED_BLOCK_NUMBER} missed blocks, telegram notification\n"),
+        ("Config", f" {missed_block_number} missed blocks, telegram notification\n"),
         ("Rpc nodes", "\n" + node_list_str),
         ("Validator address", VALOPER_ADDRESS + ""),
     ]

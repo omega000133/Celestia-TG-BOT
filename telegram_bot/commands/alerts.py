@@ -17,7 +17,8 @@ async def monitor_command(update: Update, context: CallbackContext):
             ("/monitor alert start", "start monitoring"),
             ("/monitor alert stop", "stop  monitoring"),
             ("/monitor status", "get monitoring info"),
-            ("/monitor set your_chat_id", "get group id for the chat"),
+            ("/monitor set chat_id xxxxxxxxx", "get group id for the chat"),
+            ("/monitor set missed_block_number 5", "get group id for the chat"),
         ]
 
         sub_message_list = [
@@ -46,9 +47,13 @@ async def monitor_command(update: Update, context: CallbackContext):
         await get_node_info_message(update, context, "Currenlty node info: \n")
         return
 
-    if args[0].lower() == "set" and len(args) > 1:
-        set_key(dotenv_file, "CHAT_ID", args[1])
-        return
+    if args[0].lower() == "set" and len(args) > 2:
+        if args[1].lower() == "chat_id":
+            set_key(dotenv_file, "CHAT_ID", args[2])
+            return
+        if args[1].lower() == "missed_block_number":
+            set_key(dotenv_file, "MISSED_BLOCK_NUMBER", args[2])
+            return
 
 
 async def start_alerts(update: Update, context: CallbackContext):
