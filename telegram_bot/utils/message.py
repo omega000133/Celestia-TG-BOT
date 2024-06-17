@@ -5,6 +5,7 @@ from telegram_bot.config.settings import (
     MISSED_BLOCK_NUMBER,
     VALOPER_ADDRESS,
     BASE_RPC_URL,
+    CHAT_ID,
 )
 
 
@@ -12,7 +13,14 @@ async def send_message_to_telegram(
     update: Update, context: CallbackContext, message: str
 ):
     try:
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=message)
+        print(update.effective_chat.id)
+        if CHAT_ID == update.effective_chat.id:
+            await context.bot.send_message(
+                chat_id=update.effective_chat.id, text=message
+            )
+        else:
+            await context.bot.send_message(chat_id=CHAT_ID, text=message)
+
     except Exception as e:
         await context.bot.send_message(chat_id=update.effective_chat.id, text=f"{e}")
 
